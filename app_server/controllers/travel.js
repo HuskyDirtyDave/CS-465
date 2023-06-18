@@ -1,47 +1,59 @@
- const request = require('request');
- const apiOptions = { server: 'http://localhost:3000' };
+/* Controller that creates API request and sends it off to the app_api, then gets a response back */
 
- /* internal method to render the travel list */
- const renderTravelList = (req, res, responseBody) => {
-     let message = null;
-     let pageTitle = process.env.npm_package_description + ' - Travel';
-     if (!(responseBody instanceof Array)) {
-         message = 'API lookup error';
-         responseBody = [];
-     } else {
-         if (!responseBody.length) {
-             message = 'No trips in our database!'
-         }
-     }
-     res.render('travel', {
-         title: pageTitle,
-         trips: responseBody,
-         message
-     })
- }
+const { response } = require('express');
+const request = require('request');
+const apiOptions = { server: 'http://localhost:3000' }
 
- /* GET travel view */
- const travelList = (req, res) => {
-     const path = '/api/trips';
-     const requestOptions = {
-         url: `${apiOptions.server}${path}`,
-         method: 'GET',
-         json: {},
-     };
 
-     console.info('>> TravelController.travel calling ' + requestOptions.url);
+/* render travel list view */
+const renderTravelList = (req, res, responseBody) => {
+    let message = null;
+    let pageTitle = process.env.npm_package_description + ' - Travel';
 
-     request(
-         requestOptions,
-         (err, { statusCode }, body) => {
-             if (err) {
-                 console.log(err);
-             }
-             renderTravelList(req, res, body)
-         }
-     );
- };
+    // if the result was not an array, make it an array and report error
+    if (!(responseBody instanceof Array)) {
+        message = 'API lookup error';
+        responseBody = [];
+    }
+    else {
+        if (!responseBody.length) {
+            message = 'No trips exist in database';
+        }
+    }
 
- module.exports = {
-     travelList
- };
+    // render the page using the travel.hbs handlebars file and the API data response
+    res.render('travel', {
+        title: pageTitle,
+        trips: responseBody,
+        message
+    });
+};
+
+
+/* GET travel list view */
+const travelList = (req, res) => {
+    const path = '/api/trips';
+    // construct the request
+    const requestOptions = {
+        url: `${apiOptions.server}${path}`,
+        method: 'GET',
+        json: {},
+    };
+
+    // send the request to the api and get a response. Use the response to render the travel page
+    request(
+        requestOptions,
+        (err, { statusCode }, body) => {
+            if (err) {
+                console.error(err);
+            }
+            console.log('statusCode: ', response && response.statusCode)
+            renderTravelList(req, res, body);
+        }
+    )
+};
+
+
+module.exports = {
+    travelList
+}

@@ -9,13 +9,13 @@ import { TripDataService } from '../services/trip-data.service';
   styleUrls: ['./add-trip.component.css']
 })
 export class AddTripComponent implements OnInit {
-  addForm!: FormGroup;
+  addForm: FormGroup;
   submitted = false;
 
   constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private tripService: TripDataService
+  private formBuilder: FormBuilder,
+  private router: Router,
+  private tripService: TripDataService
   ) { }
 
   ngOnInit() {
@@ -34,15 +34,15 @@ export class AddTripComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    if (this.addForm.valid) {
-      this.tripService.addTrip(this.addForm.value)
-        .then(data => {
-          console.log(data);
-          this.router.navigate(['']);
-        });
-    }
+    if(this.addForm.valid){
+    this.tripService.addTrip(this.addForm.value)
+    .then( data => {
+      console.log(data);
+      this.router.navigate(['']);
+    });
   }
+}
 
-  // get the form short name to access the form fields
-  get f() { return this.addForm.controls; }
+// get the form short name to access the form fields
+get f() { return this.addForm.controls; }
 }
